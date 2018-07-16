@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Giphy Hmwk</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt"
+    crossorigin="anonymous">
+</head>
+
+<body class="bg-dark">
+  <div class="container p-3 mb-2 bg-dark">
+    
+    <div class="jumbotron header">
+      <h1 class="text-center">
+        <strong>
+          <i class="fas fa-database"></i> Giphss</strong>
+      </h1>
+      <div class="btn-group" id="buttons-view"></div>
+
+      <form id="gif-form">
+        <div class="form-group">
+          <label for="gif-input">Add a Gif Bro</label>
+          <input class="form-control" type="text" id="gif-input">
+          <br>
+          <input id="add-gif" type="submit" value="Lemme See">
+        </div>
+      </form>
+
+    </div>
+
+    <div class="card">
+      <h4 class="card-header header">
+        <i class="fas fa-user-plus"></i> Add Giphs</h4>
+
+      <div class="card-body" id="gifs-appear-here">
+      </div>
+    </div>
+
+  </div>
+
+
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <script type="text/javascript">
+
+        $(document).ready(function () {
+
+          var gif = ["cat", "dog", "bird", "dragon", "pikachu"];
+
+          function ajaxGif() {
+            var animal = $(this).data("name");
+            var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+              animal + "&api_key=dc6zaTOxFJmzC&limit=10";
+
+            $.ajax({
+              url: queryURL,
+              method: "GET"
+            }).then(function (response) {
+              var results = response.data;
+              $("#gifs-appear-here").empty();
+
+              for (var i = 0; i < results.length; i++) {
+                var animalDiv = $("<div class='item'>");
+
+                var rating = results[i].rating;
+
+                var p = $("<p>").text("Rating: " + rating);
+
+                var animalImage = $("<img>");
+
+                animalImage.attr("id", 'gif');
+                animalImage.attr("src", results[i].images.fixed_height_still.url);
+                animalImage.attr("still", results[i].images.fixed_height_still.url);
+                animalImage.attr("animate", results[i].images.fixed_height.url);
+                animalImage.attr("state", 'still');
+
+
+                animalDiv.prepend(p);
+                animalDiv.prepend(animalImage);
+
+
+
+                $("#gifs-appear-here").append(animalDiv);
+              }
+
+              console.log(response);
+
+            });
+          }
+
+          function renderButtons() {
+
+            // Deleting the movies prior to adding new movies
+            // (this is necessary otherwise you will have repeat buttons)
+            $("#buttons-view").empty();
+
+            // Looping through the array of movies
+            for (var i = 0; i < gif.length; i++) {
+
+              // Then dynamicaly generating buttons for each movie in the array
+              // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+
+              var a = $("<button type='button' class='btn btn-dark'>Dark</button>");
+              // Adding a class of movie-btn to our button
+              a.attr("id", "gif-btn");
+              // Adding a data-attribute
+              a.attr("data-name", gif[i]);
+              // Providing the initial button text
+              a.text(gif[i]);
+              // Adding the button to the buttons-view div
+              $("#buttons-view").append(a);
+            }
+          }
+
+          // This function handles events where a movie button is clicked
+          $("#add-gif").on("click", function (event) {
+            event.preventDefault();
+            // This line grabs the input from the textbox
+            var gifs = $("#gif-input").val().trim();
+
+            // Adding movie from the textbox to our array
+            gif.push(gifs);
+
+            // Calling renderButtons which handles the processing of our movie array
+            renderButtons();
+          });
+          //click function
+          function play() {
+            console.log("work");
+            var state = $(this).attr("state");
+            console.log(this);
+            if (state === "still") {
+              $(this).attr("src", $(this).attr("animate"));
+              $(this).attr("state", "animate");
+            }
+            else if (state === "animate") {
+              $(this).attr("src", $(this).attr("still"));
+              $(this).attr("state", "still");
+            };
+          };
+          // $("#gif-btn").on("click", function () {
+          //   e.preventDefault();
+          //   console.log("work");
+          //   let state = $(this).attr("state");
+          //   console.log("work");
+
+          //   if (state === "still") {
+          //     $(this).attr("src", $(this).attr("animate"));
+          //     state = "animate";
+          //   }
+          //   else if (state === "animate") {
+          //     $(this).attr("src", $(this).attr("still"));
+          //     state = "still";
+          //   };
+          // });
+
+          // // Adding a click event listener to all elements with a class of "movie-btn"
+          $(document).on("click", "#gif-btn", ajaxGif);
+          $(document).on("click", "#gif", play);
+          // Calling the renderButtons function to display the intial buttons
+          renderButtons();
+        });
+      </script>
+</body>
+
+</html>
